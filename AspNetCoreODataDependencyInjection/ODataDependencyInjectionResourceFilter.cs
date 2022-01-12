@@ -47,7 +47,8 @@ public class ODataDependencyInjectionResourceFilter : IResourceFilter
     public void OnResourceExecuting(ResourceExecutingContext context)
     {
         var odataQueryOptionsType = typeof(ODataQueryOptions<>);
-        if (!context.ActionDescriptor.Parameters.Any(p => p.ParameterType.IsGenericType && p.ParameterType.GetGenericTypeDefinition() == odataQueryOptionsType))
+        if (!context.ActionDescriptor.Parameters.Any(p => p.ParameterType.IsGenericType && p.ParameterType.GetGenericTypeDefinition() == odataQueryOptionsType) &&
+            !context.Filters.Any(f => f is EnableQueryAttribute))
         {
             return;
         }

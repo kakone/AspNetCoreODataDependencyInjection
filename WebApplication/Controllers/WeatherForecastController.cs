@@ -9,17 +9,21 @@ namespace WebApplication.Controllers
     {
         private static readonly Summary[] Summaries = Enum.GetValues<Summary>();
 
-        [HttpGet]
-        public IEnumerable<WeatherForecast> Get(ODataQueryOptions<WeatherForecast> options)
+        private static IEnumerable<WeatherForecast> GetWeatherForecast()
         {
-            var forecast = Enumerable.Range(1, 100).Select(index => new WeatherForecast
+            return Enumerable.Range(1, 100).Select(index => new WeatherForecast
             {
                 Key = index,
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = Random.Shared.Next(-20, 55),
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             });
-            return options.ApplyTo(forecast.AsQueryable()).Cast<WeatherForecast>();
+        }
+
+        [HttpGet]
+        public IEnumerable<WeatherForecast> Get(ODataQueryOptions<WeatherForecast> options)
+        {
+            return options.ApplyTo(GetWeatherForecast().AsQueryable()).Cast<WeatherForecast>();
         }
 
         [StringAsEnumResolverFilter]
@@ -27,6 +31,14 @@ namespace WebApplication.Controllers
         public IEnumerable<WeatherForecast> GetWithStringAsEnumResolver(ODataQueryOptions<WeatherForecast> options)
         {
             return Get(options);
+        }
+
+        [StringAsEnumResolverFilter]
+        [HttpGet("WithEnableQueryAttribute")]
+        [EnableQuery]
+        public IEnumerable<WeatherForecast> GetWithEnableQueryAttribute()
+        {
+            return GetWeatherForecast();
         }
     }
 }
